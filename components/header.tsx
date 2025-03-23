@@ -15,12 +15,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { authClient, useSession } from "@/lib/auth-client";
 
 export default function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const session = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,7 +37,7 @@ export default function Header() {
     setIsMenuOpen(false);
   }, [pathname]);
 
-  const isActive = (path) => {
+  const isActive = (path: string) => {
     return pathname === path;
   };
 
@@ -116,32 +118,46 @@ export default function Header() {
 
           <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-3">
-              <Button
-                variant="ghost"
-                asChild
-                className="font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 flex items-center gap-1.5"
-              >
-                <Link href="/sign-in">
-                  <LogIn className="h-4 w-4" />
-                  <span className="font-medium">Sign In</span>
-                </Link>
-              </Button>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative"
-                onHoverStart={() => setDropdownOpen(true)}
-                onHoverEnd={() => setDropdownOpen(false)}
-              >
+                {session ? (
                 <Button
-                  asChild
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 font-medium border-0 shadow-sm flex items-center gap-1.5"
+                  onClick={async () => await authClient.signOut()}
+                  variant="ghost"
+                  className="font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 flex items-center gap-1.5"
                 >
-                  <Link href="/sign-up">
+                  <LogIn className="h-4 w-4" />
+                  <span className="font-medium">Sign Out</span>
+                </Button>
+                ) : (
+                <>
+                  <Button
+                  variant="ghost"
+                  asChild
+                  className="font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 flex items-center gap-1.5"
+                  >
+                  <Link href="/sign-in">
+                    <LogIn className="h-4 w-4" />
+                    <span className="font-medium">Sign In</span>
+                  </Link>
+                  </Button>
+                  <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative"
+                  onHoverStart={() => setDropdownOpen(true)}
+                  onHoverEnd={() => setDropdownOpen(false)}
+                  >
+                  <Button
+                    asChild
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 font-medium border-0 shadow-sm flex items-center gap-1.5"
+                  >
+                    <Link href="/sign-up">
                     <UserPlus className="h-4 w-4" />
                     <span className="font-medium">Sign Up</span>
-                  </Link>
-                </Button>
+                    </Link>
+                  </Button>
+                  </motion.div>
+                </>
+                )}
 
                 <AnimatePresence>
                   {dropdownOpen && (
@@ -156,7 +172,6 @@ export default function Header() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
             </div>
             <Button
               variant="ghost"
