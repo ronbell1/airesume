@@ -24,6 +24,11 @@ export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const session = useSession();
 
+  const userSignOut = async (): Promise<void> => {
+    await authClient.signOut();
+    window.location.reload(); // Force page revalidation
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -118,9 +123,9 @@ export default function Header() {
 
           <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-3">
-                {session ? (
+                {session.data?.session.id ? (
                 <Button
-                  onClick={async () => await authClient.signOut()}
+                  onClick={userSignOut}
                   variant="ghost"
                   className="font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 flex items-center gap-1.5"
                 >
